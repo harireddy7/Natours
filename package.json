@@ -5,11 +5,13 @@
   "main": "server.js",
   "scripts": {
     "start": "nodemon server.js",
-    "start:prod": "NODE_ENV=production nodemon server.js"
+    "start:prod": "NODE_ENV=production nodemon server.js",
+    "debug": "ndb server.js"
   },
   "author": "Hari Kotha",
   "license": "ISC",
   "devDependencies": {
+    "ndb": "^1.1.5",
     "nodemon": "^2.0.12"
   },
   "dependencies": {

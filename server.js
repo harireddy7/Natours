@@ -16,11 +16,31 @@ mongoose.connect(CONNECTION_STRING, {
     useUnifiedTopology: true
 }).then(() => {
     console.log('DB connected succesfully!');
-}).catch(() => {
-    // console.log(err)
-    console.log('Error connecting to DB!');
-});
+})
 
 // SERVER
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => console.log(`server listening for requests on port ${PORT}`));
+const server = app.listen(PORT, () => console.log(`server listening for requests on port ${PORT}`));
+
+
+// uncaughtException event handler
+// any syntactical errors
+process.on('uncaughtException', err => {
+    console.log('UNHANDLE REJECTION! Shutting down...')
+    console.log(`${err.name}: ${err.message}`)
+    server.close(() => {
+        process.exit(1)
+    })
+})
+
+// listen to unhandledRejection event
+// any db connection error, nwtwork error etc.. (outsid eof express app)
+process.on('unhandledRejection', err => {
+    console.log('UNHANDLE REJECTION! Shutting down...')
+    console.log(err)
+    // close app only after server is closed - because there might be other requests already in progress
+    server.close(() => {
+        // 0 => success, 1 - unhandled exception
+        process.exit(1)
+    })
+})
