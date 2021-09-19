@@ -53,7 +53,7 @@ const createTourAsync = async (req, res) => {
 }
 
 // Update Tour
-const updateTourAsync = async (req, res) => {
+const updateTourAsync = async (req, res, next) => {
     const updatedTour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
         new: true,
         runValidators: true
@@ -71,7 +71,7 @@ const updateTourAsync = async (req, res) => {
 }
 
 // Delete Tour
-const deleteTourAsync = async (req, res) => {
+const deleteTourAsync = async (req, res, next) => {
     const deletedTour = await Tour.findByIdAndDelete(req.params.id)
     if (!deletedTour) {
         return next(new AppError('Tour not found', 404))
