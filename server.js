@@ -3,7 +3,7 @@ const dotenv = require('dotenv')
 
 const app = require('./app')
 
-dotenv.config({ path: './config.env' })
+dotenv.config({ path: './.env' })
 // console.log(process.env)
 
 // MONGOOSE CONNECTION
