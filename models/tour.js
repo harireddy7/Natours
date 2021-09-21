@@ -78,7 +78,36 @@ const tourSchema = new mongoose.Schema({
     secretTour: {
         type: Boolean,
         default: false
-    }
+    },
+    startLocation: {
+        // GeoJSON type, mongoDB provides special type & keys must cotnains atleast type & coordinates
+        type: {
+            type: String,
+            default: 'Point',
+            enum: ['Point']
+        },
+        coordinates: [Number],
+        address: String,
+        description: String
+    },
+    locations: [
+        {
+            type: {
+                type: String,
+                default: 'Point',
+                enum: ['Point']
+            },
+            coordinates: [Number],
+            description: String,
+            day: Number,
+        }
+    ],
+    guides: [
+        {
+            type: mongoose.Schema.ObjectId,
+            ref: 'User' // add a reference of User Schema here
+        }
+    ]
 }, {
     toJSON: { virtuals: true },
     toObject: { virtuals: true }
@@ -88,22 +117,6 @@ const tourSchema = new mongoose.Schema({
 tourSchema.virtual('durationWeeks').get(function () {
     return this.duration / 7;
 })
-
-// DOCUMENT MIDDLEWARE: pre - runs before .save() & .create() methods not for update
-tourSchema.pre('save', function (next) {
-    // console.log(this)
-    this.slug = slugify(this.name, { lower: true })
-    next()
-})
-
-// tourSchema.pre('save', function (next) {
-//     console.log(this)
-//     next()
-// })
-// tourSchema.post('save', function (savedDoc, next) {
-//     console.log(savedDoc)
-//     next()
-// })
 
 // QUERY MIDDLEWARE
 // find middleware - executed before executing .find()
@@ -121,6 +134,15 @@ tourSchema.pre(/^find/, function (next) {
     next()
 })
 
+// POPULATE GUIDES FROM USER SCHEMA
+tourSchema.pre(/^find/, function (next) {
+    this.populate({
+        path: 'guides',
+        select: '-__v -passwordChangedAt'
+    })
+    next()
+})
+
 tourSchema.post(/^find/, function (docs, next) {
     // docs => docs returned after executing query
     console.log(`Query took ${Date.now() - this.start} ms`)
@@ -133,6 +155,29 @@ tourSchema.pre('aggregate', function (next) {
     this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
     next()
 })
+
+// DOCUMENT MIDDLEWARE: pre - runs before .save() & .create() methods not for update
+tourSchema.pre('save', function (next) {
+    // console.log(this)
+    this.slug = slugify(this.name, { lower: true })
+    next()
+})
+
+// EMBEDDING GUIDES IN TOURS => NOT PREFERRED
+// tourSchema.pre('save', async function (next) {
+//     const guidesPromises = this.guides.map(async userId => await User.findById(userId));
+//     this.guides = await Promise.all(guidesPromises);
+//     next();
+// })
+
+// tourSchema.pre('save', function (next) {
+//     console.log(this)
+//     next()
+// })
+// tourSchema.post('save', function (savedDoc, next) {
+//     console.log(savedDoc)
+//     next()
+// })
 
 // TOUR MODEL
 const Tour = mongoose.model('Tour', tourSchema);

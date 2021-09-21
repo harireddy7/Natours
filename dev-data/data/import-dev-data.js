@@ -3,7 +3,7 @@ const dotenv = require('dotenv')
 const fs = require('fs');
 const Tour = require('../../models/tour')
 
-dotenv.config({ path: './config.env' })
+dotenv.config({ path: './.env' })
 
 // MONGOOSE CONNECTION
 const { DB_STRING, DB_PASSWORD } = process.env;

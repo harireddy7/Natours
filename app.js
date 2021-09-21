@@ -1,8 +1,9 @@
 const express = require('express');
 const morgan = require('morgan');
-const tourRouter = require('./routes/tours')
+const authRouter = require('./routes/auth');
+const tourRouter = require('./routes/tours');
 const userRouter = require('./routes/users');
-const globalErrorHandler = require('./controllers/errors')
+const globalErrorHandler = require('./controllers/errors');
 const AppError = require('./utils/appError');
 
 const app = express();
@@ -34,6 +35,7 @@ app.get('/', (req, res) => {
 })
 
 // 2. ROUTERS
+app.use('/api/v1/auth', authRouter)
 app.use('/api/v1/tours', tourRouter)
 app.use('/api/v1/users', userRouter)
 
