@@ -1,5 +1,11 @@
 const express = require('express');
 const morgan = require('morgan');
+const rateLimit = require('express-rate-limit');
+const helmet = require('helmet')
+const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
+const hpp = require('hpp'); // http param pollution
+
 const authRouter = require('./routes/auth');
 const tourRouter = require('./routes/tours');
 const userRouter = require('./routes/users');
@@ -8,15 +14,40 @@ const AppError = require('./utils/appError');
 
 const app = express();
 
-// 1. Middlewares
+// 1. GLOBAL Middlewares
+
+// set SECURITY HTTP headers
+app.use(helmet());
 
 // Morgan Logger
 if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'))
 }
 
-// Body Parser
-app.use(express.json())
+// LIMIT API REQUETS
+const limiter = rateLimit({
+    max: 100,
+    windowMs: 60 * 60 * 1000, // allow 100 requests in 1 hr from same IP
+    message: 'Too many requests from this IP, please try again in an hour!'
+});
+app.use('/api', limiter);
+
+// Body Parser - read data from body into req.body
+// limits req body to 10kb
+app.use(express.json({ limit: '10kb' }));
+
+// DATA SANITIZATION against NoSQL query injection
+// filters out all the mongoDB operators ($, .) from req.body, req.params
+app.use(mongoSanitize());
+
+// DATA SANITIZATION against XSS
+// cleans user input from malacious html code
+app.use(xss());
+
+// Prevent HTTP param pollution
+app.use(hpp({
+    whitelist: ['duration', 'ratingsAverage', 'ratingsQuantity', 'maxGroupSize', 'price']
+}));
 
 // Custom Logger
 // app.use((req, res, next) => {

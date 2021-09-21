@@ -2,6 +2,7 @@ const { promisify } = require('util')
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+
 const User = require('../models/user');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
@@ -15,6 +16,15 @@ const signToken = id => {
 
 const sendTokenToClient = (user, statusCode, res) => {
     const token = signToken(user._id);
+    const cookieOptions = {
+        expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRY * 24 * 60 * 60 * 1000),
+        httpOnly: true // cannot let browser to view/update cookie
+    }
+    if (process.env.NODE_ENV === 'production') cookieOptions.secure = true; // only on https connections 
+    res.cookie('jwt', token, cookieOptions);
+
+    // remove password key from user to be sent to client
+    user.password = undefined;
     res.status(statusCode).json({
         status: 'success',
         token,
@@ -27,7 +37,7 @@ const signUp = catchAsync(async (req, res, next) => {
     const { name, email, password, confirmPassword, passwordChangedAt, role } = req.body;
     const newUser = await User.create({ name, email, password, confirmPassword, passwordChangedAt, role });
 
-    sendTokenToClient(user, 201, res);
+    sendTokenToClient(newUser, 201, res);
 })
 
 // LOGIN
