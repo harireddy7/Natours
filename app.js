@@ -11,6 +11,8 @@ const authRouter = require('./routes/auth');
 const userRouter = require('./routes/users');
 const tourRouter = require('./routes/tours');
 const reviewRouter = require('./routes/reviews');
+const viewRouter = require('./routes/view');
+
 const globalErrorHandler = require('./controllers/errors');
 const AppError = require('./utils/appError');
 
@@ -76,13 +78,7 @@ app.use(hpp({
 // 2. ROUTERS
 
 // RENDER BASE PUG TEMPLATE
-app.get('/', (req, res) => {
-    res.status(200).render('base', {
-        tour: 'Forest Hiker',
-        user: 'Barry'
-    });
-})
-
+app.use('/', viewRouter);
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
