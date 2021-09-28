@@ -13,6 +13,6 @@ const router = express.Router();
 
 router.get('/', getOverview)
 
-router.get('/tours/:tour-name', getTour)
+router.get('/tour/:slug', getTour)
 
 module.exports = router;
