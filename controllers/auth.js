@@ -68,7 +68,7 @@ const protect = catchAsync(async (req, res, next) => {
     if (authorization && authorization.startsWith('Bearer')) {
         token = authorization.split(' ')[1]
     }
-    if (!token) {
+    if (!token || token === 'null') {
         return next(new AppError('You are not authorised, please log in', 401))
     }
 

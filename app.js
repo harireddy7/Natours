@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
@@ -7,12 +8,22 @@ const xss = require('xss-clean');
 const hpp = require('hpp'); // http param pollution
 
 const authRouter = require('./routes/auth');
-const tourRouter = require('./routes/tours');
 const userRouter = require('./routes/users');
+const tourRouter = require('./routes/tours');
+const reviewRouter = require('./routes/reviews');
 const globalErrorHandler = require('./controllers/errors');
 const AppError = require('./utils/appError');
 
 const app = express();
+
+// SET VIEW ENGINE TO PUG
+app.set('view engine', 'pug');
+
+// SET VIEWS DIRECTORY
+app.set('views', path.join(__dirname, 'views'));
+
+// SERVE STATIC FILES FROM A FOLDER
+app.use(express.static(path.join(__dirname, 'public')));
 
 // 1. GLOBAL Middlewares
 
@@ -55,20 +66,27 @@ app.use(hpp({
 // 	next()
 // })
 
-// SERVE STATIC FILES FROM A FOLDER
-app.use(express.static(`${__dirname}/public`))
-
-app.get('/', (req, res) => {
-    res.status(200).json({
-        status: 'success',
-        message: 'response from natours api'
-    })
-})
+// app.get('/', (req, res) => {
+//     res.status(200).json({
+//         status: 'success',
+//         message: 'response from natours api'
+//     })
+// })
 
 // 2. ROUTERS
-app.use('/api/v1/auth', authRouter)
-app.use('/api/v1/tours', tourRouter)
-app.use('/api/v1/users', userRouter)
+
+// RENDER BASE PUG TEMPLATE
+app.get('/', (req, res) => {
+    res.status(200).render('base', {
+        tour: 'Forest Hiker',
+        user: 'Barry'
+    });
+})
+
+app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/tours', tourRouter);
+app.use('/api/v1/users', userRouter);
+app.use('/api/v1/reviews', reviewRouter);
 
 app.all('*', (req, res, next) => {
     // res.status(404).json({

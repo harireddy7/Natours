@@ -1,6 +1,7 @@
 const User = require('../models/user')
 const catchAsync = require('../utils/catchAsync')
 const AppError = require('../utils/appError');
+const factory = require('./handlerFactory');
 
 const filterObjByFields = (obj, ...fields) => {
     const filteredObj = {}
@@ -12,44 +13,28 @@ const filterObjByFields = (obj, ...fields) => {
     return filteredObj;
 }
 
-const getAllUsers = catchAsync(async (req, res) => {
-    const users = await User.find()
+const getAllUsers = factory.getAll(User);
 
-    res.status(200).json({
-        status: 'success',
-        results: users.length,
-        data: {
-            users
-        }
-    })
-})
-
-const getUser = (req, res) => {
-    res.status(500).json({
-        status: 'error',
-        message: 'This route is not yet defined!'
-    })
-}
+const getUser = factory.getOne(User);
 
 const createUser = (req, res) => {
     res.status(500).json({
         status: 'error',
-        message: 'This route is not yet defined!'
+        message: 'This route is not defined! please use /signup instead'
     })
 }
 
-const updateUser = (req, res) => {
-    res.status(500).json({
-        status: 'error',
-        message: 'This route is not yet defined!'
-    })
-}
 
-const deleteUser = (req, res) => {
-    res.status(500).json({
-        status: 'error',
-        message: 'This route is not yet defined!'
-    })
+// Do not update password through this, ONLY FOR ADMINS
+const updateUser = factory.updateOne(User);
+
+const deleteUser = factory.deleteOne(User);
+
+// Middleware to append logged user to req params
+const getMe = (req, res, next) => {
+    // to be used in handlerFactory
+    req.params.id = req.user.id;
+    next();
 }
 
 // UPDATE USER DATA
@@ -104,4 +89,5 @@ module.exports = {
     deleteUser,
     updateMe,
     deleteMe,
+    getMe,
 };

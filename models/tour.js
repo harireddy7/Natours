@@ -118,14 +118,14 @@ tourSchema.virtual('durationWeeks').get(function () {
     return this.duration / 7;
 })
 
-// QUERY MIDDLEWARE
-// find middleware - executed before executing .find()
-// tourSchema.pre('find', function (next) {
-//     // this => current query
-//     this.find({ secretTour: { $ne: true } }) // fitler out docs with secretTour !== true
-//     next()
-// })
+// Virtual Populate => populates review IDs in tour docs w/o saving to db
+tourSchema.virtual('reviews', {
+    ref: 'Review',
+    foreignField: 'tour',
+    localField: '_id'
+})
 
+// QUERY MIDDLEWARE
 // ALL MIDDLEWARES STARTING WITH .find....
 tourSchema.pre(/^find/, function (next) {
     // this => current query
@@ -151,10 +151,10 @@ tourSchema.post(/^find/, function (docs, next) {
 })
 
 // AGGREGATION MIDDLEWARE
-tourSchema.pre('aggregate', function (next) {
-    this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
-    next()
-})
+// tourSchema.pre('aggregate', function (next) {
+//     this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+//     next()
+// })
 
 // DOCUMENT MIDDLEWARE: pre - runs before .save() & .create() methods not for update
 tourSchema.pre('save', function (next) {
@@ -170,14 +170,11 @@ tourSchema.pre('save', function (next) {
 //     next();
 // })
 
-// tourSchema.pre('save', function (next) {
-//     console.log(this)
-//     next()
-// })
-// tourSchema.post('save', function (savedDoc, next) {
-//     console.log(savedDoc)
-//     next()
-// })
+// INDEXES
+// compound index
+tourSchema.index({ price: 1, ratingsAverage: -1 });
+tourSchema.index({ slug: 1 });
+tourSchema.index({ startLocation: '2dsphere' });
 
 // TOUR MODEL
 const Tour = mongoose.model('Tour', tourSchema);
