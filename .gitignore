@@ -6,6 +6,7 @@ node_modules/
 
 # vscode related config
 .vscode/
+.cache
 
 #env files
 .env

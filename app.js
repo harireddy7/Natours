@@ -2,10 +2,11 @@ const path = require('path');
 const express = require('express');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
-const helmet = require('helmet')
+const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp'); // http param pollution
+const cookieParser = require('cookie-parser');
 
 const authRouter = require('./routes/auth');
 const userRouter = require('./routes/users');
@@ -30,24 +31,39 @@ app.use(express.static(path.join(__dirname, 'public')));
 // 1. GLOBAL Middlewares
 
 // set SECURITY HTTP headers
-app.use(helmet());
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'", 'data:', 'blob:'],
+      fontSrc: ["'self'", 'https:', 'data:'],
+      scriptSrc: ["'self'", 'unsafe-inline'],
+      scriptSrc: ["'self'", 'https://*.cloudflare.com'],
+      scriptSrcElem: ["'self'", 'https:', 'https://*.cloudflare.com'],
+      styleSrc: ["'self'", 'https:', 'unsafe-inline'],
+      connectSrc: ["'self'", 'data', 'https://*.cloudflare.com'],
+    },
+  })
+);
 
 // Morgan Logger
 if (process.env.NODE_ENV === 'development') {
-    app.use(morgan('dev'))
+  app.use(morgan('dev'));
 }
 
 // LIMIT API REQUETS
 const limiter = rateLimit({
-    max: 100,
-    windowMs: 60 * 60 * 1000, // allow 100 requests in 1 hr from same IP
-    message: 'Too many requests from this IP, please try again in an hour!'
+  max: 100,
+  windowMs: 60 * 60 * 1000, // allow 100 requests in 1 hr from same IP
+  message: 'Too many requests from this IP, please try again in an hour!',
 });
 app.use('/api', limiter);
 
 // Body Parser - read data from body into req.body
 // limits req body to 10kb
 app.use(express.json({ limit: '10kb' }));
+
+// parses data from cookies
+app.use(cookieParser());
 
 // DATA SANITIZATION against NoSQL query injection
 // filters out all the mongoDB operators ($, .) from req.body, req.params
@@ -58,15 +74,28 @@ app.use(mongoSanitize());
 app.use(xss());
 
 // Prevent HTTP param pollution
-app.use(hpp({
-    whitelist: ['duration', 'ratingsAverage', 'ratingsQuantity', 'maxGroupSize', 'price']
-}));
+app.use(
+  hpp({
+    whitelist: [
+      'duration',
+      'ratingsAverage',
+      'ratingsQuantity',
+      'maxGroupSize',
+      'price',
+    ],
+  })
+);
 
 // Custom Logger
 // app.use((req, res, next) => {
-// 	console.log(`${req.method} request of URL ${req.url} from ${req.headers.host} at ${new Date().toDateString()} - ${new Date().toTimeString()}`)
-// 	next()
-// })
+//   console.log(
+//     `${req.method} request of URL ${req.url} from ${
+//       req.headers.host
+//     } at ${new Date().toDateString()} - ${new Date().toTimeString()}`
+//   );
+//   console.log(req.cookies);
+//   next();
+// });
 
 // app.get('/', (req, res) => {
 //     res.status(200).json({
@@ -85,21 +114,21 @@ app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
 
 app.all('*', (req, res, next) => {
-    // res.status(404).json({
-    //     status: 'failure',
-    //     message: `Can't find ${req.method} ${req.url} on the server`
-    // })
+  // res.status(404).json({
+  //     status: 'failure',
+  //     message: `Can't find ${req.method} ${req.url} on the server`
+  // })
 
-    // const err = new Error(`Can't find ${req.method} ${req.url} on the server`)
-    // err.status = 'failure'
-    // err.statusCode = 404
-    // // passing any data to next() is treated as an error by express & sent to gobal error middleware
-    // next(err)
+  // const err = new Error(`Can't find ${req.method} ${req.url} on the server`)
+  // err.status = 'failure'
+  // err.statusCode = 404
+  // // passing any data to next() is treated as an error by express & sent to gobal error middleware
+  // next(err)
 
-    next(new AppError(`Can't find ${req.method} ${req.url} on the server`, 404))
-})
+  next(new AppError(`Can't find ${req.method} ${req.url} on the server`, 404));
+});
 
 // Global Error Middleware
-app.use(globalErrorHandler)
+app.use(globalErrorHandler);
 
 module.exports = app;
