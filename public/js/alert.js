@@ -7,8 +7,10 @@ export const hideAlert = () => {
 
 // type = success || error
 export const showAlert = (type, message, timeout = 5000) => {
-  const markUp = `<div class="alert alert--${type}>${message}</div>`;
-  document.querySelector('body').insertAdjacentHTML('afterbegin', markUp);
+  const alertEl = document.createElement('div');
+  alertEl.className = `alert alert--${type}`;
+  alertEl.textContent = message;
+  document.querySelector('body').insertAdjacentElement('afterbegin', alertEl);
 
   window.setTimeout(hideAlert, timeout);
 };

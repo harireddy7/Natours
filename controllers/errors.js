@@ -1,29 +1,52 @@
 const AppError = require('../utils/appError')
 
-const sendErrorDev = (err, res) => {
-    res.status(err.statusCode).json({
-        status: err.status,
-        message: err.message,
-        stack: err.stack,
-        error: err
+const sendErrorDev = (err, req, res) => {
+    // API ERROR
+    if (req.originalUrl.startsWith('/api')) {
+        return res.status(err.statusCode).json({
+            status: err.status,
+            message: err.message,
+            stack: err.stack,
+            error: err
+        })
+    }
+    // WEBPAGE ERROR
+    res.status(err.statusCode).render('error', {
+        title: 'Something went wrong!',
+        msg: err.message
     })
 }
 
-const sendErrorProd = (err, res) => {
+const sendErrorProd = (err, req, res) => {
+    if (req.originalUrl.startsWith('/api')) {
+        if (err.isOperational) {
+            return res.status(err.statusCode).json({
+                status: err.status,
+                message: err.message
+            })
+        } else {
+            // Programming errors || syntactical errors (any mistakes in the code)
+    
+            // console.error('ERROR: ', err);
+    
+            return res.status(err.statusCode).json({
+                status: 'error',
+                message: 'Something went wrong!'
+            })
+        }
+    }
     // Operational errors
     if (err.isOperational) {
-        res.status(err.statusCode).json({
-            status: err.status,
-            message: err.message
+        return res.status(err.statusCode).render('error', {
+            title: 'Something went wrong!',
+            msg: err.message
         })
     } else {
         // Programming errors || syntactical errors (any mistakes in the code)
-
         // console.error('ERROR: ', err);
-
-        res.status(err.statusCode).json({
-            status: 'error',
-            message: 'Something went wrong!'
+        return res.status(err.statusCode).render('error', {
+            title: 'Something went wrong!',
+            msg: 'Something went wrong'
         })
     }
 }
@@ -55,9 +78,10 @@ module.exports = (err, req, res, next) => {
     err.status = err.status || 'error'
 
     if (process.env.NODE_ENV === 'development') {
-        sendErrorDev(err, res);
+        sendErrorDev(err, req, res);
     } else if (process.env.NODE_ENV === 'production') {
-        let error = err
+        let error = { ...err }
+        error.message = err.message
 
         // Invalid document _id error 
         if (error.name === 'CastError') error = handleCastErrorDB(error)
@@ -75,6 +99,6 @@ module.exports = (err, req, res, next) => {
         if (error.name === 'TokenExpiredError') error = handleJwtExpiredError()
 
         console.log(error)
-        sendErrorProd(error, res);
+        sendErrorProd(error, req, res);
     }
 }

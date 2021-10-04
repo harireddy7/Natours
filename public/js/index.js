@@ -1,10 +1,13 @@
 import '@babel/polyfill';
-import { loginUser } from './login';
+import { loginUser, logoutUser } from './login';
 import { displayMap } from './mapbox';
 
 // DOM elements
 const formEl = document.querySelector('.form');
 const mapEl = document.getElementById('map');
+const logoutBtn = document.getElementById('logout');
+
+// window.scroll({ top: 0, left: 0, behavior: 'smooth' });
 
 // Get tour locations
 if (mapEl) {
@@ -23,4 +26,8 @@ if (formEl) {
 
     loginUser(email, password);
   });
+}
+
+if (logoutBtn) {
+  logoutBtn.addEventListener('click', logoutUser);
 }

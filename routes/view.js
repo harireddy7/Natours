@@ -1,12 +1,12 @@
 const express = require('express');
-const { isLoggedIn } = require('../controllers/auth');
-const { getOverview, getTour, getLoginPage } = require('../controllers/views');
+const { isLoggedIn, protect } = require('../controllers/auth');
+const { getOverview, getTour, getLoginPage, getAccount } = require('../controllers/views');
 
 const router = express.Router();
 
-router.use(isLoggedIn);
+// router.use(isLoggedIn);
 
-router.get('/', getOverview);
+router.get('/', isLoggedIn, getOverview);
 
 // middleware to add csp for mapbox
 const mapboxCSP = (req, res, next) => {
@@ -17,8 +17,10 @@ const mapboxCSP = (req, res, next) => {
   next();
 };
 
-router.get('/tour/:slug', mapboxCSP, getTour);
+router.get('/tour/:slug', isLoggedIn, mapboxCSP, getTour);
 
-router.get('/login', getLoginPage);
+router.get('/me', protect, getAccount);
+
+router.get('/login', isLoggedIn, getLoginPage);
 
 module.exports = router;
