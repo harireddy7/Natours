@@ -1,11 +1,14 @@
 import '@babel/polyfill';
 import { loginUser, logoutUser } from './login';
+import { updateSettings } from './updateSettings';
 import { displayMap } from './mapbox';
 
 // DOM elements
-const formEl = document.querySelector('.form');
+const loginFormEl = document.querySelector('#login-form');
 const mapEl = document.getElementById('map');
 const logoutBtn = document.getElementById('logout');
+const saveSettingsFormEl = document.querySelector('#save-settings');
+const savePasswordFormEl = document.querySelector('#save-password');
 
 // window.scroll({ top: 0, left: 0, behavior: 'smooth' });
 
@@ -16,8 +19,8 @@ if (mapEl) {
 }
 
 // Login submit event listener
-if (formEl) {
-  formEl.addEventListener('submit', (e) => {
+if (loginFormEl) {
+  loginFormEl.addEventListener('submit', (e) => {
     e.preventDefault();
 
     // Form values
@@ -25,6 +28,48 @@ if (formEl) {
     const password = document.getElementById('password').value;
 
     loginUser(email, password);
+  });
+}
+
+// Save user settings submit event listener
+if (saveSettingsFormEl) {
+  saveSettingsFormEl.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const form = new FormData();
+
+    form.append('name', document.getElementById('name').value);
+    form.append('email', document.getElementById('email').value);
+    form.append('photo', document.getElementById('photo').files[0]);
+
+    updateSettings({
+      type: 'user-data',
+      data: form
+    });
+  });
+}
+
+// Save user password submit event listener
+if (savePasswordFormEl) {
+  savePasswordFormEl.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    // show btn progress
+    document.getElementById('save-password-btn').textContent = 'Saving...';
+
+    // Form values
+    const currentPassword = document.getElementById('password-current').value;
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('password-confirm').value;
+
+    updateSettings({
+      type: 'password',
+      data: {
+        currentPassword,
+        password,
+        confirmPassword
+      }
+    });
   });
 }
 

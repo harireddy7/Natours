@@ -62,6 +62,9 @@ app.use('/api', limiter);
 // limits req body to 10kb
 app.use(express.json({ limit: '10kb' }));
 
+// parser to encode data from url
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+
 // parses data from cookies
 app.use(cookieParser());
 

@@ -1,7 +1,7 @@
 const express = require('express');
 
 const { protect, restrictTo } = require('../controllers/auth');
-const { getAllUsers, getUser, createUser, updateUser, deleteUser, updateMe, deleteMe, getMe } = require('../controllers/users')
+const { getAllUsers, getUser, createUser, updateUser, deleteUser, updateMe, deleteMe, getMe, uploadUserPhoto, resizeUserPhoto } = require('../controllers/users')
 
 const router = express.Router()
 
@@ -10,7 +10,7 @@ router.use(protect);
 
 // Logged user routes
 router.get('/me', getMe, getUser);
-router.patch('/updateme', updateMe);
+router.patch('/updateme', uploadUserPhoto, resizeUserPhoto, updateMe);
 router.delete('/deleteme', deleteMe);
 
 // All the routes under this are only accessible to admin

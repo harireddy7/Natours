@@ -19,9 +19,10 @@ const userSchema = new mongoose.Schema({
         lowercase: true,
         validate: [validator.isEmail, 'Invalid Email']
     },
-    // path of them image in files
+    // file name of images in public/img/users directory
     photo: {
         type: String,
+        default: 'default.jpg'
     },
     password: {
         type: String,
