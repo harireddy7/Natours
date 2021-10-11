@@ -13,6 +13,7 @@ const userRouter = require('./routes/users');
 const tourRouter = require('./routes/tours');
 const reviewRouter = require('./routes/reviews');
 const viewRouter = require('./routes/view');
+const bookingRouter = require('./routes/booking');
 
 const globalErrorHandler = require('./controllers/errors');
 const AppError = require('./utils/appError');
@@ -32,29 +33,25 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // set SECURITY HTTP headers
 app.use(
-  helmet.contentSecurityPolicy({
-    directives: {
-      defaultSrc: ["'self'", 'data:', 'blob:'],
-      fontSrc: ["'self'", 'https:', 'data:'],
-      scriptSrc: ["'self'", 'unsafe-inline'],
-      scriptSrc: ["'self'", 'https://*.cloudflare.com'],
-      scriptSrcElem: ["'self'", 'https:', 'https://*.cloudflare.com'],
-      styleSrc: ["'self'", 'https:', 'unsafe-inline'],
-      connectSrc: ["'self'", 'data', 'https://*.cloudflare.com'],
-    },
-  })
+	helmet.contentSecurityPolicy({
+		directives: {
+			defaultSrc: ["'self'", 'data:', 'blob:', 'ws:', 'https://*.cloudflare.com', 'https://js.stripe.com', 'https://*.mapbox.com'],
+			fontSrc: ["'self'", 'https:', 'data:'],
+			styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://*.mapbox.com'],
+		},
+	})
 );
 
 // Morgan Logger
 if (process.env.NODE_ENV === 'development') {
-  app.use(morgan('dev'));
+	app.use(morgan('dev'));
 }
 
 // LIMIT API REQUETS
 const limiter = rateLimit({
-  max: 100,
-  windowMs: 60 * 60 * 1000, // allow 100 requests in 1 hr from same IP
-  message: 'Too many requests from this IP, please try again in an hour!',
+	max: 100,
+	windowMs: 60 * 60 * 1000, // allow 100 requests in 1 hr from same IP
+	message: 'Too many requests from this IP, please try again in an hour!',
 });
 app.use('/api', limiter);
 
@@ -78,15 +75,15 @@ app.use(xss());
 
 // Prevent HTTP param pollution
 app.use(
-  hpp({
-    whitelist: [
-      'duration',
-      'ratingsAverage',
-      'ratingsQuantity',
-      'maxGroupSize',
-      'price',
-    ],
-  })
+	hpp({
+		whitelist: [
+			'duration',
+			'ratingsAverage',
+			'ratingsQuantity',
+			'maxGroupSize',
+			'price',
+		],
+	})
 );
 
 // Custom Logger
@@ -115,20 +112,21 @@ app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
+app.use('/api/v1/booking', bookingRouter);
 
 app.all('*', (req, res, next) => {
-  // res.status(404).json({
-  //     status: 'failure',
-  //     message: `Can't find ${req.method} ${req.url} on the server`
-  // })
+	// res.status(404).json({
+	//     status: 'failure',
+	//     message: `Can't find ${req.method} ${req.url} on the server`
+	// })
 
-  // const err = new Error(`Can't find ${req.method} ${req.url} on the server`)
-  // err.status = 'failure'
-  // err.statusCode = 404
-  // // passing any data to next() is treated as an error by express & sent to gobal error middleware
-  // next(err)
+	// const err = new Error(`Can't find ${req.method} ${req.url} on the server`)
+	// err.status = 'failure'
+	// err.statusCode = 404
+	// // passing any data to next() is treated as an error by express & sent to gobal error middleware
+	// next(err)
 
-  next(new AppError(`Can't find ${req.method} ${req.url} on the server`, 404));
+	next(new AppError(`Can't find ${req.method} ${req.url} on the server`, 404));
 });
 
 // Global Error Middleware
