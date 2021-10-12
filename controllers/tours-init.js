@@ -43,10 +43,10 @@ const getAllTours = async (req, res) => {
         // const excludedFields = ['page', 'sort', 'limit', 'fields']
         // const queryObj = Object.keys(req.query).filter(key => !excludedFields.includes(key)).reduce((acc, field) => ({ ...acc, [field]: req.query[field] }), {});
 
-        // // 1B. ADVANCED FILTERING
+        // 1B. ADVANCED FILTERING
         // let queryStr = JSON.stringify(queryObj);
         // queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`)
-        // // console.log(queryStr)
+        // console.log(queryStr)
 
         // let query = null;
         // if (Object.keys(req.query).length) {

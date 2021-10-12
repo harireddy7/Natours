@@ -98,7 +98,7 @@ module.exports = (err, req, res, next) => {
         // jwt expired error
         if (error.name === 'TokenExpiredError') error = handleJwtExpiredError()
 
-        console.log(error)
+        // console.log(error)
         sendErrorProd(error, req, res);
     }
 }

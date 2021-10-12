@@ -7,7 +7,7 @@ export const updateSettings = async ({ type, data }) => {
 	try {
 		const resp = await axios({
 			method: 'PATCH',
-			url: `${location.protocol}//${location.host}/api/v1/${apiPath}`,
+			url: `/api/v1/${apiPath}`,
 			data,
 		});
 		// console.log(resp.data);

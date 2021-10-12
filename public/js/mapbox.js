@@ -50,11 +50,3 @@ export const displayMap = (locations) => {
     },
   });
 };
-
-// let locations = [];
-// document.addEventListener('DOMContentLoaded', () => {
-//   const el = document.getElementById('map');
-//   if (el) {
-//     locations = JSON.parse(el.dataset.locations);
-//   }
-// });

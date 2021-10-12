@@ -7,6 +7,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp'); // http param pollution
 const cookieParser = require('cookie-parser');
+const compression = require('compression');
 
 const authRouter = require('./routes/auth');
 const userRouter = require('./routes/users');
@@ -103,6 +104,9 @@ app.use(
 //         message: 'response from natours api'
 //     })
 // })
+
+// COMPRESS RESPONSES
+app.use(compression());
 
 // 2. ROUTERS
 
