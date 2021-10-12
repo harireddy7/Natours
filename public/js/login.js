@@ -37,7 +37,7 @@ export const logoutUser = async () => {
 			window.setTimeout(() => {
 				showAlert('success', 'Logged out successfully!');
 				const { pathname } = window.location;
-				if (pathname === '/me') {
+				if (pathname === '/me' || pathname === '/my-tours') {
 					window.location.replace('/');
 				} else {
 					location.reload(true);
