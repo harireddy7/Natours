@@ -11,7 +11,6 @@ export const loginUser = async (email, password) => {
 				password,
 			},
 		});
-		// console.log(resp.data);
 
 		if (resp.data.status === 'success') {
 			showAlert('success', 'Logged in successfully!', 800);
@@ -21,7 +20,6 @@ export const loginUser = async (email, password) => {
 			}, 1000);
 		}
 	} catch (err) {
-		// alert(err.response.data.message);
 		showAlert('error', err.response.data.message);
 	}
 };
