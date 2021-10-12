@@ -13,6 +13,7 @@ exports.getOverview = catchAsync(async (req, res) => {
   res.status(200).render('overview', {
     title: 'All Tours',
     tours,
+    path: req.originalUrl
   });
 });
 
@@ -54,6 +55,7 @@ exports.getMyTours = catchAsync(async (req, res, next) => {
   res.status(200).render('overview', {
     title: 'My Tours',
     tours,
+    path: req.originalUrl
   });
 })
 
