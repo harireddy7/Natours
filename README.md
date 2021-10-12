@@ -1,2 +1,3 @@
-# Natours
-Natours app built while learning Node.js course from Udemy
+# Natours-Life
+
+Natours-Life app built while learning [Node.js course](https://www.udemy.com/course/nodejs-express-mongodb-bootcamp/) from Udemy
