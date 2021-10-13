@@ -14,15 +14,16 @@ const signToken = (id) => {
 	});
 };
 
-const sendTokenToClient = (user, statusCode, res) => {
+const sendTokenToClient = (user, statusCode, req, res) => {
 	const token = signToken(user._id);
 	const cookieOptions = {
 		expires: new Date(
 			Date.now() + process.env.JWT_COOKIE_EXPIRY * 24 * 60 * 60 * 1000
 		),
 		httpOnly: true, // cannot let browser to view/update cookie
+		secure: req.secure || req.header('x-forwarded-proto') === 'https',  // only on https connections
 	};
-	if (process.env.NODE_ENV === 'production') cookieOptions.secure = true; // only on https connections
+
 	res.cookie('jwt', token, cookieOptions);
 
 	// remove password key from user to be sent to client
@@ -58,7 +59,7 @@ const signUp = catchAsync(async (req, res, next) => {
 	// console.log(url);
 	await new Email(newUser, url).sendWelcome();
 
-	sendTokenToClient(newUser, 201, res);
+	sendTokenToClient(newUser, 201, req, res);
 });
 
 // LOGIN
@@ -78,7 +79,7 @@ const login = catchAsync(async (req, res, next) => {
 	}
 
 	// 3. if all good, send back new token
-	sendTokenToClient(user, 200, res);
+	sendTokenToClient(user, 200, req, res);
 });
 
 // LOGOUT user by deleting cookie
@@ -243,7 +244,7 @@ const resetPassword = catchAsync(async (req, res, next) => {
 	// 3. update passwordChangedAt property on user document
 	// Done in userSchema pre save
 	// 4. log the user in & send jwt
-	sendTokenToClient(user, 200, res);
+	sendTokenToClient(user, 200, req, res);
 });
 
 // UPDATE PASSWORD
@@ -267,7 +268,7 @@ const updatePassword = catchAsync(async (req, res, next) => {
 	await user.save();
 
 	// 4. send back new jwt tokens
-	sendTokenToClient(user, 200, res);
+	sendTokenToClient(user, 200, req, res);
 });
 
 module.exports = {

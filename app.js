@@ -21,6 +21,8 @@ const AppError = require('./utils/appError');
 
 const app = express();
 
+app.enable('trust proxy');
+
 // SET VIEW ENGINE TO PUG
 app.set('view engine', 'pug');
 

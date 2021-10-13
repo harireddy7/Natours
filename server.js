@@ -45,3 +45,12 @@ process.on('unhandledRejection', err => {
         process.exit(1)
     })
 })
+
+// SIGTERM rejection
+process.on('SIGTERM', () => {
+    console.log('SIGTERM RECEIVED, shutting down server!');
+    // close server only after pending requests are served
+    server.close(() => {
+        console.log('Process terminated!');
+    });
+})
