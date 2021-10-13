@@ -8,6 +8,7 @@ const xss = require('xss-clean');
 const hpp = require('hpp'); // http param pollution
 const cookieParser = require('cookie-parser');
 const compression = require('compression');
+const cors = require('cors');
 
 const authRouter = require('./routes/auth');
 const userRouter = require('./routes/users');
@@ -20,6 +21,14 @@ const globalErrorHandler = require('./controllers/errors');
 const AppError = require('./utils/appError');
 
 const app = express();
+
+// CORS
+// Access-Control-Allow-Origin: *
+app.use(cors());
+
+// PREFLIGHT REQUESTS
+// Allow all methods like PUT, PATCH & DELETE as well on all routes
+app.options('*', cors())
 
 app.enable('trust proxy');
 
