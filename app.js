@@ -17,6 +17,7 @@ const reviewRouter = require('./routes/reviews');
 const viewRouter = require('./routes/view');
 const bookingRouter = require('./routes/booking');
 
+const { webhookCheckout } = require('./controllers/booking');
 const globalErrorHandler = require('./controllers/errors');
 const AppError = require('./utils/appError');
 
@@ -66,6 +67,13 @@ const limiter = rateLimit({
 	message: 'Too many requests from this IP, please try again in an hour!',
 });
 app.use('/api', limiter);
+
+// req body will be of type stream, so being placed before parsing middleware
+app.post(
+	'/webhook-checkout',
+	express.raw({ type: 'application/json' }),
+	webhookCheckout
+);
 
 // Body Parser - read data from body into req.body
 // limits req body to 10kb
