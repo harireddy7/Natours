@@ -1,10 +1,12 @@
 const express = require('express');
 const { isLoggedIn, protect } = require('../controllers/auth');
-const { getOverview, getTour, getLoginPage, getAccount, updateUserData, getMyTours } = require('../controllers/views');
+const { getOverview, getTour, getLoginPage, getAccount, updateUserData, getMyTours, alerts } = require('../controllers/views');
 
 const router = express.Router();
 
 // router.use(isLoggedIn);
+
+router.use(alerts);
 
 router.get('/', isLoggedIn, getOverview);
 

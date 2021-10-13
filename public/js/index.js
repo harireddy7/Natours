@@ -3,6 +3,7 @@ import { loginUser, logoutUser } from './login';
 import { updateSettings } from './updateSettings';
 import { displayMap } from './mapbox';
 import { bookTour } from './stripe';
+import { showAlert } from './alert';
 
 // DOM elements
 const loginFormEl = document.querySelector('#login-form');
@@ -91,3 +92,6 @@ if (bookTourEl) {
 if (logoutBtn) {
   logoutBtn.addEventListener('click', logoutUser);
 }
+
+const alertMessage = document.querySelector('body').dataset.alert;
+if (alert) showAlert('success', alertMessage, 20000);

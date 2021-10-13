@@ -13,7 +13,7 @@ html
             link(rel='shortcut icon' type='image/png' href='/img/favicon.png')
             script(src='https://js.stripe.com/v3/' defer)
 
-        body
+        body(data-alert=`${alert ? alert : ''}`)
             // HEADER
             include _header
 
